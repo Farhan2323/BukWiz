@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Book Page</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" crossorigin="anonymous">
+    <style>
+      .book-page {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .book-details {
+        margin-left: 20px;
+        flex: 1;
+      }
+
+      .book-cover {
+        max-width: 200px;
+      }
+
+      .buttons {
+        margin-top: 20px;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="index.html">
+          BukWiz
+        </a>
+      </div>
+
+
+      <div id="navbar" class="navbar-menu">
+        <div class="navbar-start">
+          <a class="navbar-item" href="trivia.html">
+            Trivia
+          </a>
+          <a class="navbar-item" href="posts.html">
+            Posts
+          </a>
+        </div>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a class="navbar-item" href="login.html" id="user_page">
+            Login
+          </a>
+        </div>
+      </div>
+
+    </nav>
+
+    <section class="section">
+      <div class="container">
+        <div class="book-page" style="display:none;" id="bookDetailsSection">
+          <div class="book-cover">
+            <figure class="image">
+              <img id="coverImg" src="" alt="Book Cover">
+            </figure>
+          </div>
+          <div class="book-details">
+            <h1 id="bookTitle" class="title"></h1>
+            <h2 id="bookAuthor" class="subtitle"></h2>
+            <p><strong>Genre:</strong> <span id="bookGenre"></span></p>
+            <p id="bookDescription" class="description"></p>
+            <div class="buttons">
+              <button id="reserve-button" class="button is-primary" disabled>Reserve</button>
+              <button id="checkout-button" class="button is-info" disabled>Checkout</button>
+              <button id="return-button" class="button is-primary" disabled>Return</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      checkLogin();
+
+      function checkLogin() {
+        if (document.cookie === "") {} else {
+          document.getElementById("user_page").innerText = "Profile";
+          document.getElementById("user_page").href = "user_page.html";
+          document.getElementById("checkout-button").disabled = false;
+          document.getElementById("return-button").disabled = false;
+          document.getElementById("reserve-button").disabled = false;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        const params = new URLSearchParams(window.location.search);
+        const bookId = params.get('bookId');
+
+        if (bookId) {
+          let formData = new FormData();
+          formData.append("bookId", bookId);
+
+          fetch('http://35.226.77.162:5000/getBookInfo', {
+              method: 'POST',
+              body: formData
+            })
+
+            .then(response => response.json())
+            .then(data => {
+              if (data.error) {
+                alert(data.error);
+                return;
+              }
+              document.getElementById('coverImg').src = data.coverImg;
+              document.getElementById('bookTitle').innerText = data.title;
+              document.getElementById('bookAuthor').innerText = "by " + data.author;
+              document.getElementById('bookGenre').innerText = data.genres;
+              document.getElementById('bookDescription').innerText = data.description;
+              document.getElementById('bookDetailsSection').style.display = 'flex';
+            })
+            .catch(error => console.error('Error fetching book details:', error));
+        }
+      });
+
+      document.getElementById('checkout-button').addEventListener('click', function() {
+        let cookie = document.cookie.substring(10);
+        const params = new URLSearchParams(window.location.search);
+        const bookId = params.get('bookId');
+
+        fetch('http://35.226.77.162:5000/borrowBook', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              'cookie': cookie,
+              'bookId': bookId
+            })
+          })
+          .then(response => {
+            if (response.ok) {
+              return response.text();
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(data => {
+            alert('Book borrowed successfully!');
+          })
+          .catch(error => {
+            alert('Error borrowing book.');
+          });
+      });
+
+        document.getElementById('return-button').addEventListener('click', function() {
+          let cookie = document.cookie.substring(10);
+          const params = new URLSearchParams(window.location.search);
+          const bookId = params.get('bookId');
+
+          fetch('http://35.226.77.162:5000/returnBook', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({
+                'cookie': cookie,
+                'bookId': bookId
+              })
+            })
+            .then(response => {
+              if (response.ok) {
+                return response.text();
+              }
+              throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+              alert('Book returned successfully!');
+            })
+            .catch(error => {
+              alert('Error returning book.');
+            });
+        });
+
+      document.getElementById('reserve-button').addEventListener('click', function() {
+        let cookie = document.cookie.substring(10);
+        const params = new URLSearchParams(window.location.search);
+        const bookId = params.get('bookId');
+
+        fetch('http://35.226.77.162:5000/reserveBook', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              'cookie': cookie,
+              'bookId': bookId
+            })
+          })
+          .then(response => {
+            if (response.ok) {
+              return response.text();
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(data => {
+            alert('Book reserved successfully!');
+          })
+          .catch(error => {
+            alert('Error reserving book.');
+          });
+      });
+
+    </script>
+
+  </body>
+
+</html>

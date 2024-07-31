@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" crossorigin="anonymous">
+    <style>
+      .hero.is-fullheight {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .search-bar {
+        max-width: 600px;
+        margin: 20px auto;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="index.html">
+          BukWiz
+        </a>
+      </div>
+      <div id="navbar" class="navbar-menu">
+        <div class="navbar-start">
+          <a class="navbar-item" href="trivia.html">
+            Trivia
+          </a>
+          <a class="navbar-item" href="posts.html">
+            Posts
+          </a>
+        </div>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a class="navbar-item" href="login.html" id="user_page">
+            Login
+          </a>
+        </div>
+      </div>
+    </nav>
+    <section class="section">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <div class="columns is-centered">
+            <div class="column is-three-fifths">
+              <div class="box">
+                <div class="search-bar">
+                  <form onsubmit="getBooks();return false;">
+                    <div class="field has-addons">
+                      <div class="control">
+                        <span class="select">
+                          <select id="searchBy" name="searchBy">
+                            <option value="title">Title</option>
+                            <option value="series">Series</option>
+                          </select>
+                        </span>
+                      </div>
+                      <div class="control is-expanded">
+                        <input class="input" type="text" id="searchInput" placeholder="Search">
+                      </div>
+                      <div class="control">
+                        <button class="button is-info" type="submit" value="Submit">
+                          Search
+                        </button>
+                      </div>
+                    </div>
+                    <div class="field has-addons">
+                      <div class="control">
+                        <input class="input" id="genre" type="text" placeholder="Genre">
+                      </div>
+                      <label class="label" for="sortRadio" style="padding-left:20px;padding-top:8px;">Sort By:</label>
+                      <div class="control" id="sortRadio" style="padding-left:10px;padding-top:9px;">
+                        <label class="radio" for="sortName">
+                          <input type="radio" name="sort" id="sortName" checked>
+                          Name
+                        </label>
+                        <label class="radio" for="sortRating">
+                          <input type="radio" name="sort" id="sortRating">
+                          Rating
+                        </label>
+                      </div>
+                      <div class="control">
+                        <label class="checkbox" for="inStock" style="padding-left:20px;padding-top:12px;">
+                          <input type="checkbox" name="inStock" id="inStock">
+                          In Stock Only
+                        </label>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div class="container">
+          <div class="columns is-centered">
+            <div class="column is-three-quarters" id="bookList">
+            </div>
+          </div>
+        </div>
+
+
+
+      </div>
+    </section>
+    <script>
+      checkLogin();
+      let pos = -1;
+      let data = null;
+      let titleSearch = null;
+      document.getElementById("searchBy").addEventListener("input", function() {
+        if (document.getElementById("searchBy").value == "title") {
+          document.getElementById("genre").disabled = false;
+          document.getElementById("genre").readOnly = false;
+        } else {
+          document.getElementById("genre").readOnly = true;
+          document.getElementById("genre").disabled = true;
+          document.getElementById("genre").value = "";
+        }
+      });
+      document.addEventListener('scroll', function() {
+        if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+          if (pos != -1 && pos < data.length) {
+            let newHTML = "";
+            let posEnd = pos + 5;
+            for (; pos < Math.min(posEnd, data.length); ++pos) {
+              if (titleSearch) {
+                newHTML += `<div class="box">
+                            <div class="columns is-centered" style="height:200px;">
+                              <div class="column is-2 has-text-centered">
+                                <img id="img" src="${data[pos]["coverImg"]}" style="width:100px;height:100%;">
+                              </div>
+                              <div class="column">
+                                <div style="margin-bottom:20px;">
+                                  <h6 class="title is-6 has-text-left is-pulled-left" style="margin-bottom:0px;"><a href="book_page.html?bookId=${data[pos]["bookId"]}">${data[pos]["title"]}</a>, ${data[pos]["series"]}</h6>
+                                  <h6 class="title is-6 has-text-right is-pulled-right" style="margin-bottom:0px;">${data[pos]["rating"].toFixed(2)}/5.00</h6>
+                                </div>
+                                <div style="margin-bottom:60px;">
+                                  <h6 class="subtitle is-6 has-text-left is-pulled-left" style="margin-bottom:0px;">${data[pos]["author"]}, ${data[pos]["publisher"]}</h6>
+                                  <h6 class="subtitle is-6 has-text-right is-pulled-right" style="margin-bottom:0px;">${data[pos]["genres"]}, ${data[pos]["publishDate"]}</h6>
+                                </div>
+                                <div>
+                                  <p class="has-text-left" style="margin-bottom:0px;max-height:100px;overflow:hidden;text-overflow:ellipsis;">${data[pos]["description"]}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>`;
+              } else {
+                newHTML += `<div class="box">
+                          <div class="columns is-centered" style="max-height:100px;">
+                            <div class="column">
+                              <div style="margin-bottom:20px;">
+                                <h6 class="title is-6 has-text-left is-pulled-left" style="margin-bottom:0px;">${data[pos]["series"]}</h6>
+                                <h6 class="title is-6 has-text-right is-pulled-right" style="margin-bottom:0px;">${data[pos]["avgRating"].toFixed(2)}/5.00</h6>
+                              </div>
+                            </div>
+                          </div>
+                        </div>`;
+              }
+            }
+            document.getElementById("bookList").innerHTML += newHTML;
+          }
+        }
+      });
+      document.addEventListener("DOMContentLoaded", function() {
+        const params = new URLSearchParams(window.location.search);
+        const title = params.get('title');
+        if (title) {
+          document.getElementById("searchInput").value = title;
+          getBooks();
+        }
+      });
+
+      function checkLogin() {
+        if (document.cookie === "") {} else {
+          document.getElementById("user_page").innerText = "Profile";
+          document.getElementById("user_page").href = "user_page.html";
+        }
+      }
+
+      function getBooks() {
+        document.getElementById("searchInput").readOnly = true;
+        document.getElementById("genre").readOnly = true;
+        document.getElementById("searchBy").disabled = true;
+        document.getElementById("inStock").disabled = true;
+        document.getElementById("sortName").disabled = true;
+        document.getElementById("sortRating").disabled = true;
+        document.getElementById("searchInput").disabled = true;
+        document.getElementById("genre").disabled = true;
+        let formData = new FormData();
+        if (document.getElementById("searchInput").value != "") {
+          formData.append("title", document.getElementById("searchInput").value);
+        }
+        if (document.getElementById("genre").value != "") {
+          formData.append("genres", document.getElementById("genre").value);
+        }
+        formData.append("inStock", document.getElementById("inStock").checked);
+        if (document.getElementById("searchBy").value == "title") {
+          if (document.getElementById("sortName").checked) {
+            formData.append("sortBy", "title");
+          } else {
+            formData.append("sortBy", "rating");
+          }
+        } else {
+          if (document.getElementById("sortName").checked) {
+            formData.append("sortBy", "series");
+          } else {
+            formData.append("sortBy", "avgRating");
+          }
+        }
+        let options = {
+          body: formData,
+          method: "POST"
+        };
+        if (document.getElementById("searchBy").value == "title") {
+          fetch("http://35.226.77.162:5000/getBooks", options).
+          then((resp) => resp.json()).
+          then((json) => {
+            titleSearch = true;
+            data = json;
+            pos = 0;
+            document.getElementById("bookList").innerHTML = ""
+            let newHTML = "";
+            for (; pos < Math.min(5, data.length); ++pos) {
+              newHTML += `<div class="box">
+                            <div class="columns is-centered" style="height:200px;">
+                              <div class="column is-2 has-text-centered">
+                                <img id="img" src="${data[pos]["coverImg"]}" style="width:100px;height:100%;">
+                              </div>
+                              <div class="column">
+                                <div style="margin-bottom:20px;">
+                                  <h6 class="title is-6 has-text-left is-pulled-left" style="margin-bottom:0px;"><a href="book_page.html?bookId=${data[pos]["bookId"]}">${data[pos]["title"]}</a>, ${data[pos]["series"]}</h6>
+                                  <h6 class="title is-6 has-text-right is-pulled-right" style="margin-bottom:0px;">${data[pos]["rating"].toFixed(2)}/5.00</h6>
+                                </div>
+                                <div style="margin-bottom:60px;">
+                                  <h6 class="subtitle is-6 has-text-left is-pulled-left" style="margin-bottom:0px;">${data[pos]["author"]}, ${data[pos]["publisher"]}</h6>
+                                  <h6 class="subtitle is-6 has-text-right is-pulled-right" style="margin-bottom:0px;">${data[pos]["genres"]}, ${data[pos]["publishDate"]}</h6>
+                                </div>
+                                <div>
+                                  <p class="has-text-left" style="margin-bottom:0px;max-height:100px;overflow:hidden;text-overflow:ellipsis;">${data[pos]["description"]}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>`;
+            }
+            document.getElementById("bookList").innerHTML = newHTML;
+          });
+        } else {
+          fetch("http://35.226.77.162:5000/getSeries", options).
+          then((resp) => resp.json()).
+          then((json) => {
+            titleSearch = false;
+            data = json;
+            pos = 0;
+            document.getElementById("bookList").innerHTML = "";
+            let newHTML = "";
+            for (; pos < Math.min(5, json.length); ++pos) {
+              newHTML += `<div class="box">
+                          <div class="columns is-centered" style="max-height:100px;">
+                            <div class="column">
+                              <div style="margin-bottom:20px;">
+                                <h6 class="title is-6 has-text-left is-pulled-left" style="margin-bottom:0px;">${data[pos]["series"]}</h6>
+                                <h6 class="title is-6 has-text-right is-pulled-right" style="margin-bottom:0px;">${data[pos]["avgRating"].toFixed(2)}/5.00</h6>
+                              </div>
+                            </div>
+                          </div>
+                        </div>`;
+            }
+            document.getElementById("bookList").innerHTML = newHTML;
+          });
+        }
+        document.getElementById("searchBy").disabled = false;
+        document.getElementById("inStock").disabled = false;
+        document.getElementById("sortName").disabled = false;
+        document.getElementById("sortRating").disabled = false;
+        document.getElementById("searchInput").disabled = false;
+        document.getElementById("genre").disabled = false;
+        document.getElementById("searchInput").readOnly = false;
+        document.getElementById("genre").readOnly = false;
+      }
+
+    </script>
+  </body>
+
+</html>

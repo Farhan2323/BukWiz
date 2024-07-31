@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BukWiz</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" crossorigin="anonymous">
+    <style>
+      .hero.is-fullheight {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .search-bar {
+        max-width: 600px;
+        margin: 20px auto;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="index.html">
+          BukWiz
+        </a>
+      </div>
+      <div id="navbar" class="navbar-menu">
+        <div class="navbar-start">
+          <a class="navbar-item" href="trivia.html">
+            Trivia
+          </a>
+          <a class="navbar-item" href="posts.html">
+            Posts
+          </a>
+        </div>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a class="navbar-item" href="login.html" id="user_page">
+            Login
+          </a>
+        </div>
+      </div>
+    </nav>
+    <section class="section">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title is-1">
+            BukWiz
+          </h1>
+          <div class="search-bar">
+            <div class="field has-addons">
+              <div class="control is-expanded">
+                <input id="searchTitle" class="input" type="text" placeholder="Book Title">
+              </div>
+              <div class="control">
+                <button class="button is-info" onclick="redirectToSearch();">
+                  Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      checkLogin();
+
+      function checkLogin() {
+        if (document.cookie === "") {} else {
+          document.getElementById("user_page").innerText = "Profile";
+          document.getElementById("user_page").href = "user_page.html";
+        }
+      }
+
+      function redirectToSearch() {
+        const title = document.getElementById('searchTitle').value;
+        window.location.replace(`search.html?title=${encodeURIComponent(title)}`);
+      }
+
+    </script>
+  </body>
+
+</html>

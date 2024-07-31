@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" crossorigin="anonymous">
+  </head>
+
+  <body>
+    <div>
+      <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="index.html">
+            BukWiz
+          </a>
+        </div>
+        <div id="navbar" class="navbar-menu">
+          <div class="navbar-start">
+            <a class="navbar-item" href="trivia.html">
+              Trivia
+            </a>
+            <a class="navbar-item" href="posts.html">
+              Posts
+            </a>
+          </div>
+        </div>
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <a class="navbar-item" href="login.html" id="user_page">
+              Login
+            </a>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container">
+          <div class="columns is-centered is-vcentered">
+            <div class="column is-3">
+              <div class="box">
+                <form onsubmit="tryLogin();return false;">
+                  <div class="field">
+                    <label for="username" class="label">Username</label>
+                    <div class="control">
+                      <input type="text" placeholder="Username" id="username" class="input" required>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="password" class="label">Password</label>
+                    <div class="control">
+                      <input type="password" placeholder="Password" id="password" class="input" required>
+                    </div>
+                  </div>
+                  <p class="has-text-danger" style="display:none;" id="failWarning"><small>Username or password incorrect</small></p>
+                  <div class="field is-grouped" style="margin-top:10px;">
+                    <div class="control">
+                      <button type="submit" value="Submit" class="button is-success">Login</button>
+                    </div>
+                    <div class="control">
+                      <a class="" href="#" disabled></a>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      checkLogin();
+
+      function checkLogin() {
+        if (document.cookie === "") {} else {
+          window.location.replace("index.html");
+        }
+      }
+
+      function tryLogin() {
+        document.getElementById('username').readOnly = true;
+        document.getElementById('password').readOnly = true;
+        document.getElementById('username').disabled = true;
+        document.getElementById('password').disabled = true;
+        document.getElementById('failWarning').style.display = "none";
+        let formData = new FormData();
+        formData.append("username", document.getElementById("username").value);
+        formData.append("password", document.getElementById("password").value);
+        let options = {
+          body: formData,
+          method: "POST"
+        };
+        fetch("http://35.226.77.162:5000/login", options)
+          .then((resp) => resp.json())
+          .then((json) => {
+            if (json["cookie"] === null) {
+              document.getElementById('username').value = "";
+              document.getElementById('password').value = "";
+              document.getElementById('username').disabled = false;
+              document.getElementById('password').disabled = false;
+              document.getElementById('username').readOnly = false;
+              document.getElementById('password').readOnly = false;
+              document.getElementById('failWarning').style.display = "";
+            } else {
+              document.cookie = "userTmpId=" + json["cookie"];
+              window.location.replace("index.html");
+            }
+          });
+      }
+
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" crossorigin="anonymous">
+    <style>
+      .profile-page {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .profile-info {
+        margin-top: 20px;
+      }
+
+      .profile-header {
+        margin-bottom: 20px;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="index.html">
+          BukWiz
+        </a>
+      </div>
+      <div id="navbar" class="navbar-menu">
+        <div class="navbar-start">
+          <a class="navbar-item" href="trivia.html">
+            Trivia
+          </a>
+          <a class="navbar-item" href="posts.html">
+            Posts
+          </a>
+        </div>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a class="navbar-item" href="login.html" id="user_page">
+            Login
+          </a>
+        </div>
+      </div>
+    </nav>
+    <section class="section">
+      <div class="container profile-page">
+        <div class="profile-header has-text-centered">
+          <h1 class="title">User Profile</h1>
+          <p class="subtitle">Welcome!</p>
+        </div>
+        <div class="profile-info">
+          <h2 class="title is-4">Your Favorite Author</h2>
+          <p id="favorite-author">Author Name:</p>
+          <h2 class="title is-4">Your Favorite Genre</h2>
+          <p id="favorite-genre">Genre Name:</p>
+        </div>
+      </div>
+    </section>
+    <script>
+      checkLogin();
+
+      function checkLogin() {
+        if (document.cookie === "") {
+          window.location.replace("login.html");
+        } else {
+          document.getElementById("user_page").innerText = "Profile";
+          document.getElementById("user_page").href = "user_page.html";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        let cookie = document.cookie.substring(10);
+        let newText = "";
+        fetch('http://35.226.77.162:5000/getFavoriteGenres', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              'cookie': cookie
+            })
+          })
+          .then(resp => resp.json())
+          .then(json => {
+            let count = -1;
+            for (let record of json) {
+              if (count == -1) {
+                count = record["COUNT(bookId)"];
+              } else if (record["COUNT(bookId)"] < count) {
+                break;
+              } else {
+                newText += ", ";
+              }
+              newText += record["genres"];
+            }
+            document.getElementById("favorite-genre").innerText = newText;
+          })
+      });
+
+      document.addEventListener("DOMContentLoaded", function() {
+        let cookie = document.cookie.substring(10);
+        let newText = "";
+        fetch('http://35.226.77.162:5000/getFavoriteAuthors', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              'cookie': cookie
+            })
+          })
+          .then(resp => resp.json())
+          .then(json => {
+            let count = -1;
+            for (let record of json) {
+              if (count == -1) {
+                count = record["COUNT(bookId)"];
+              } else if (record["COUNT(bookId)"] < count) {
+                break;
+              } else {
+                newText += ", ";
+              }
+              newText += record["author"];
+            }
+            document.getElementById("favorite-author").innerText = newText;
+          })
+      });
+
+    </script>
+
+  </body>
+
+</html>

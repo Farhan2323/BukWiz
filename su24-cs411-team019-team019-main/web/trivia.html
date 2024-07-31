@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trivia</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" crossorigin="anonymous">
+  </head>
+
+  <body>
+    <div>
+      <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="index.html">
+            BukWiz
+          </a>
+        </div>
+        <div id="navbar" class="navbar-menu">
+          <div class="navbar-start">
+            <a class="navbar-item" href="trivia.html">
+              Trivia
+            </a>
+            <a class="navbar-item" href="posts.html">
+              Posts
+            </a>
+          </div>
+        </div>
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <a class="navbar-item" href="login.html" id="user_page">
+              Login
+            </a>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <div class="container">
+      <div class="columns">
+        <div class="column">
+          <h2 class="title is-2">Trivia</h2>
+        </div>
+        <div class="column">
+          <h3 class="subtitle is-3 has-text-right"></h3>
+        </div>
+      </div>
+      <div id="loader">
+        <div class="columns">
+          <div class="column">
+            <div class="is-flex is-justify-content-center is-align-content-center is-align-items-center" style="padding-top:150px;">
+              <div class="loader" style="height:80px;width:80px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="quiz" style="display:none;padding-bottom:20px;">
+        <div>
+          <h6 class="title is-6" style="margin-bottom:20px;">What book can be described by the following?</h6>
+          <p id="bookSummary" style="margin-bottom:20px;"></p>
+        </div>
+        <form>
+          <div class="field">
+            <div class="control">
+              <div class="columns is-vcentered">
+                <div class="column is-narrow">
+                  <button class="button is-primary" id="button0" onclick="checkAnswer(0);return false;">A</button>
+                </div>
+                <div class="column">
+                  <p id="book1"></p>
+                </div>
+              </div>
+            </div>
+            <div class="control">
+              <div class="columns is-vcentered">
+                <div class="column is-narrow">
+                  <button class="button is-primary" id="button1" onclick="checkAnswer(1);return false;">B</button>
+                </div>
+                <div class="column">
+                  <p id="book2"></p>
+                </div>
+              </div>
+            </div>
+            <div class="control">
+              <div class="columns is-vcentered">
+                <div class="column is-narrow">
+                  <button class="button is-primary" id="button2" onclick="checkAnswer(2);return false;">C</button>
+                </div>
+                <div class="column">
+                  <p id="book3"></p>
+                </div>
+              </div>
+            </div>
+            <div class="control">
+              <div class="columns is-vcentered">
+                <div class="column is-narrow">
+                  <button class="button is-primary" id="button3" onclick="checkAnswer(3);return false;">D</button>
+                </div>
+                <div class="column">
+                  <p id="book4"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div id="fail" class="container has-text-centered" style="display:none;padding-bottom:20px;">
+        <h4 class="title is-4 has-text-danger">Sorry, but that was incorrect!</h4>
+        <div class="columns is-centered">
+          <div class="column is-half">
+            <div class="box">
+              <div class="columns">
+                <div class="column" style="padding-bottom:0;">
+                  <h3 class="title is-3">Leaderboard</h3>
+                </div>
+              </div>
+              <hr class="solid">
+              <div class="columns">
+                <div class="column">
+                  <h6 class="title is-6">#</h6>
+                </div>
+                <div class="column is-two-thirds">
+                  <h6 class="title is-6">User</h6>
+                </div>
+                <div class="column">
+                  <h6 class="title is-6">Score</h6>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <h6 class="subtitle is-6">1</h6>
+                </div>
+                <div class="column is-two-thirds">
+                  <h6 class="subtitle is-6" id="user0"></h6>
+                </div>
+                <div class="column">
+                  <h6 class="subtitle is-6" id="score0"></h6>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <h6 class="subtitle is-6">2</h6>
+                </div>
+                <div class="column is-two-thirds">
+                  <h6 class="subtitle is-6" id="user1"></h6>
+                </div>
+                <div class="column">
+                  <h6 class="subtitle is-6" id="score1"></h6>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <h6 class="subtitle is-6">3</h6>
+                </div>
+                <div class="column is-two-thirds">
+                  <h6 class="subtitle is-6" id="user2"></h6>
+                </div>
+                <div class="column">
+                  <h6 class="subtitle is-6" id="score2"></h6>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <h6 class="subtitle is-6">4</h6>
+                </div>
+                <div class="column is-two-thirds">
+                  <h6 class="subtitle is-6" id="user3"></h6>
+                </div>
+                <div class="column">
+                  <h6 class="subtitle is-6" id="score3"></h6>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <h6 class="subtitle is-6">5</h6>
+                </div>
+                <div class="column is-two-thirds">
+                  <h6 class="subtitle is-6" id="user4"></h6>
+                </div>
+                <div class="column">
+                  <h6 class="subtitle is-6" id="score4"></h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="button is-primary" onclick="window.location.reload();">Try Again</button>
+      </div>
+    </div>
+    <script>
+      checkLogin();
+      let correct_answer = -1;
+      getTrivia();
+
+      function checkLogin() {
+        if (document.cookie === "") {} else {
+          document.getElementById("user_page").innerText = "Profile";
+          document.getElementById("user_page").href = "user_page.html";
+        }
+      }
+      async function getTrivia() {
+        let books;
+        let formData = new FormData();
+        formData.append("count", 4);
+        let options = {
+          body: formData,
+          method: "POST"
+        };
+        document.getElementById("quiz").style.display = "none";
+        document.getElementById("loader").style.display = "";
+        await fetch("http://35.226.77.162:5000/getRandomBookInfo", options).
+        then((resp) => resp.json()).
+        then((json) => {
+          books = json;
+        });
+        correct_answer = Math.floor(4 * Math.random());
+        document.getElementById("book1").innerText = books[0]["title"];
+        document.getElementById("book2").innerText = books[1]["title"];
+        document.getElementById("book3").innerText = books[2]["title"];
+        document.getElementById("book4").innerText = books[3]["title"];
+        document.getElementById("bookSummary").innerText = books[correct_answer]["description"];
+        document.getElementById("button0").disabled = false;
+        document.getElementById("button1").disabled = false;
+        document.getElementById("button2").disabled = false;
+        document.getElementById("button3").disabled = false;
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("quiz").style.display = "";
+      }
+
+      function checkAnswer(answer_choice) {
+        document.getElementById("button0").disabled = true;
+        document.getElementById("button1").disabled = true;
+        document.getElementById("button2").disabled = true;
+        document.getElementById("button3").disabled = true;
+        if (correct_answer == answer_choice) {
+          if (document.cookie === "") {} else {
+            let formData = new FormData();
+            formData.append("cookie", document.cookie.substring(10));
+            let options = {
+              body: formData,
+              method: "POST"
+            };
+            fetch("http://35.226.77.162:5000/incrementScore", options);
+          }
+          getTrivia();
+        } else {
+          getLeaderboard();
+          document.getElementById("quiz").style.display = "none";
+          document.getElementById("fail").style.display = "";
+        }
+      }
+
+      function getLeaderboard() {
+        fetch("http://35.226.77.162:5000/getLeaderboard").
+        then((resp) => resp.json()).
+        then((json) => {
+          for (let i = 0; i < 5; ++i) {
+            document.getElementById("user" + i).innerText = json[i]["username"];
+            document.getElementById("score" + i).innerText = json[i]["score"];
+          }
+        });
+      }
+
+    </script>
+  </body>
+
+</html>

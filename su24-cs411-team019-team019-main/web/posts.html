@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Posts</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" crossorigin="anonymous">
+  </head>
+
+  <body class="has-navbar-fixed-top">
+    <div>
+      <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="index.html">
+            BukWiz
+          </a>
+        </div>
+        <div id="navbar" class="navbar-menu">
+          <div class="navbar-start">
+            <a class="navbar-item" href="trivia.html">
+              Trivia
+            </a>
+            <a class="navbar-item" href="posts.html">
+              Posts
+            </a>
+          </div>
+        </div>
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <a class="navbar-item" href="login.html" id="user_page">
+              Login
+            </a>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <div style="margin-top:20px;">
+      <div class="columns">
+        <div class="column is-two-thirds" id="postList">
+        </div>
+        <div class="column">
+          <div style="position:-webkit-sticky;position:sticky;top:60px;margin-right:10px;">
+            <form onsubmit="tryPost();return false;">
+              <div class="field">
+                <div class="control">
+                  <textarea class="textarea" id="postText" rows="10" placeholder="Type post here!" required></textarea>
+                </div>
+              </div>
+              <div class="field">
+                <div class="control">
+                  <input class="input" id="postBook" type="text" placeholder="BookId">
+                </div>
+              </div>
+              <p class="has-text-danger" style="display:none;margin-bottom:15px;margin-top:0px;" id="failWarning"><small>Post Failed to Submit</small></p>
+              <div class="field">
+                <div class="control">
+                  <button type="submit" value="Submit" id="postButton" class="button is-primary" disabled>Send Post</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      getPosts();
+      checkLogin();
+
+      function getPosts() {
+        fetch("http://35.226.77.162:5000/getPosts")
+          .then((resp) => resp.json())
+          .then((json) => {
+            let html = document.getElementById("postList").innerHTML;
+            for (let record of json) {
+              let bookId = record.bookId;
+              if (bookId === null) {
+                bookId = "";
+              } else {
+                bookId = bookId.toString();
+              }
+              html += `<div style="border-radius:20px;border:1px solid;padding:10px;margin-bottom:10px;margin-left:10px;">
+  <div style="margin-bottom:20px;">
+  <h6 class="title is-6">${record.username}</h6>
+  <h6 class="subtitle is-6 is-pulled-left" style="margin-bottom:0px;"><small>${record.postDate} </small></h6>
+  <h6 class="subtitle is-6 is-pulled-right" style="margin-bottom:0px;"><small>${bookId}</small></h6>
+  </div>
+  <p>${record.post}</p>
+</div>`;
+            }
+            document.getElementById("postList").innerHTML = html;
+          });
+      }
+
+      function checkLogin() {
+        if (document.cookie === "") {} else {
+          document.getElementById("postButton").disabled = false;
+          document.getElementById("user_page").innerText = "Profile";
+          document.getElementById("user_page").href = "user_page.html";
+        }
+      }
+
+      function tryPost() {
+        document.getElementById('postText').readOnly = true;
+        document.getElementById('postBook').readOnly = true;
+        document.getElementById('postText').disabled = true;
+        document.getElementById('postBook').disabled = true;
+        document.getElementById("failWarning").style.display = "none";
+        let formData = new FormData();
+        formData.append("content", document.getElementById("postText").value);
+        if (document.getElementById("postBook").value != "") {
+          formData.append("bookId", document.getElementById("postBook").value);
+        }
+        formData.append("cookie", document.cookie.substring(10));
+        let options = {
+          body: formData,
+          method: "POST"
+        };
+        fetch("http://35.226.77.162:5000/post", options)
+          .then((resp) => {
+            if (resp.status == 200) {
+              window.location.reload();
+            } else {
+              document.getElementById("failWarning").style.display = "";
+              document.getElementById("postText").disabled = false;
+              document.getElementById("postBook").disabled = false;
+              document.getElementById("postText").readOnly = false;
+              document.getElementById("postBook").readOnly = false;
+            }
+          });
+      }
+
+    </script>
+  </body>
+
+</html>
